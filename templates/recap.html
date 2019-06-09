@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for purchase in purchases %}
+        <div>{{ purchase.category }} {{ purchase.price }}</div>
+        <a href="{{ url_for('remove', id=purchase.id) }}">Remove</a>
+    {% endfor %}
+{% endblock content %}
