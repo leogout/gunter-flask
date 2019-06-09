@@ -75,7 +75,3 @@ def initdb():
     db.session.add(bud_groceries)
 
     db.session.commit()
-
-
-if __name__ == '__main__':
-    app.run()
