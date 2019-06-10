@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for
-from models import db, Category, Budget, Purchase
-from forms import PurchaseForm
+from models import db, Category, Budget, Purchase, CategoryRecap
+from forms import PurchaseForm, BudgetForm
 from datetime import datetime
 from sqlalchemy import extract
 import locale
@@ -20,24 +20,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 
 db.init_app(app)
 
-
-class CategoryRecap:
-    def __init__(self, category, purchases, budget):
-        self.category = category
-        self.purchases = purchases
-        self.budget = budget
-
-    def get_price(self):
-        return sum([p.price for p in self.purchases])
-
-    def get_budget(self):
-        return self.budget.limit
-
-    def get_name(self):
-        return self.category.name
-
-    def get_percentage(self):
-        return round(self.get_price() / self.get_budget() * 100)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -66,7 +48,7 @@ def home():
         budget = Budget.query.filter(Budget.category == category).first()
         category_recaps.append(CategoryRecap(category=category, purchases=purchases, budget=budget))
 
-    return render_template('homepage.html', form=form, category_recaps=category_recaps, recap=recap)
+    return render_template('homepage.html', form=form, category_recaps=category_recaps)
 
 
 @app.route('/remove/<int:id>', methods=['GET', 'POST'])
@@ -80,11 +62,22 @@ def remove(id):
     return redirect(url_for('home'))
 
 
-@app.route('/recap', methods=['GET', 'POST'])
-def recap():
-    purchases = Purchase.query.filter(extract('month', Purchase.date) == datetime.now().month - 1).all()
+@app.route('/budgets', methods=['GET', 'POST'])
+def budgets():
+    form = BudgetForm()
+    form.category.choices = [(c.id, c.name) for c in Category.query.all()]
 
-    return render_template('recap.html', purchases=purchases)
+    if form.validate_on_submit():
+        category_id = form.category.data
+        budget = Budget.query.filter(Budget.category_id == category_id).first()
+        budget.limit = form.limit.data
+
+        db.session.add(budget)
+        db.session.commit()
+
+        return redirect(url_for('home'))
+
+    return render_template('budgets.html', form=form)
 
 
 @app.cli.command()

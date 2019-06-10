@@ -1,40 +1,52 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    <div class="row">
-        {% for category_recap in category_recaps %}
-            <div class="col s4 ">
-                <h5>{{ category_recap.get_name() }}</h5>
-                <div class="{{ 'red-text' if category_recap.get_percentage() > 100 else 'green-text' }}">
-                    {{ "%.2f"|format(category_recap.get_price()) }} € sur {{ "%.2f"|format(category_recap.get_budget()) }} ({{ category_recap.get_percentage() }}%)
-                </div>
-                <div class="progress">
-                    <div class="determinate" style="width: {{ category_recap.get_percentage() }}%"></div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-
     <form action="" method="post">
         {{ form.csrf_token }}
-        {{ form.category.label }} {{ form.category }}
-        {{ form.price.label }} {{ form.price }}
-        <input type="submit" value="Go">
+        <div class="row">
+            <div class="input-field col s12 m6">
+                {{ form.category }}
+                <label for="first_name">{{ form.category.label }}</label>
+            </div>
+            <div class="input-field col s12 m6">
+                {{ form.price }}
+                <label for="first_name">{{ form.price.label }}</label>
+            </div>
+
+            <div class="center-align">
+                <button class="btn waves-effect waves-light indigo darken-1" type="submit" name="action">Envoyer</button>
+            </div>
+        </div>
     </form>
 
     <div class="row">
         {% for category_recap in category_recaps %}
-            <div class="col s4">
-                <h5>{{ category_recap.name }}</h5>
-                {% for purchase in category_recap.purchases %}
-                    <div>
-                        <div>{{ purchase.date.strftime('%A %d %B') }} : {{ "%.2f"|format(purchase.price) }} € <a href="{{ url_for('remove', id=purchase.id) }}">Supprimer</a></div>
+            <div class="col s12 m4">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">{{ category_recap.get_name() }}</span>
+                        <div class="{{ 'red-text' if category_recap.get_percentage() >= 100 else '' }}">
+                            {{ category_recap.get_price() | round | int }} € sur {{ category_recap.get_budget() | round  | int }} ({{ category_recap.get_percentage() }}%)
+                        </div>
+                        <div class="progress indigo accent-1">
+                            <div class="determinate indigo darken-1" style="width: {{ category_recap.get_percentage() }}%"></div>
+                        </div>
 
+                        {% for purchase in category_recap.purchases %}
+                            <div>
+                                {{ purchase.date.strftime('%A %d %B') }} : {{ "%.2f"|format(purchase.price) }} €
+                                <a href="{{ url_for('remove', id=purchase.id) }}">Supprimer</a>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
             </div>
         {% endfor %}
-    </div>
+  </div>
+
+
+
+
+
 
 {% endblock content %}
