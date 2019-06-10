@@ -3,6 +3,9 @@ from models import db, Category, Budget, Purchase
 from forms import PurchaseForm
 from datetime import datetime
 from sqlalchemy import extract
+import locale
+
+locale.setlocale(locale.LC_TIME, "fr")
 
 app = Flask(__name__)
 
@@ -13,6 +16,24 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 
 db.init_app(app)
 
+
+class CategoryRecap:
+    def __init__(self, category, purchases, budget):
+        self.category = category
+        self.purchases = purchases
+        self.budget = budget
+
+    def get_price(self):
+        return sum([p.price for p in self.purchases])
+
+    def get_budget(self):
+        return self.budget.limit
+
+    def get_name(self):
+        return self.category.name
+
+    def get_percentage(self):
+        return round(self.get_price() / self.get_budget() * 100)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -30,18 +51,18 @@ def home():
 
         return redirect(url_for('home'))
 
-    purchases = Purchase.query \
+    purchases_q = Purchase.query \
         .filter(extract('month', Purchase.date) == datetime.now().month) \
-        .order_by(Purchase.date.desc()) \
-        .all()
+        .order_by(Purchase.date.desc())
 
-    recap = {c.name: {'price': 0, 'purchases': []} for c in Category.query.all()}
+    category_recaps = []
 
-    for purchase in purchases:
-        recap[purchase.category.name]['price'] += purchase.price
-        recap[purchase.category.name]['purchases'].append(purchase)
+    for category in Category.query.all():
+        purchases = purchases_q.filter(Purchase.category == category).all()
+        budget = Budget.query.filter(Budget.category == category).first()
+        category_recaps.append(CategoryRecap(category=category, purchases=purchases, budget=budget))
 
-    return render_template('homepage.html', form=form, purchases=purchases, recap=recap)
+    return render_template('homepage.html', form=form, category_recaps=category_recaps, recap=recap)
 
 
 @app.route('/remove/<int:id>', methods=['GET', 'POST'])

@@ -3,10 +3,15 @@
 {% block content %}
 
     <div class="row">
-        {% for category, value in recap.items() %}
-            <div class="col s4">
-                <h5>{{ category }}</h5>
-                <div>{{ "$%.2f"|format(value.price) }} €</div>
+        {% for category_recap in category_recaps %}
+            <div class="col s4 ">
+                <h5>{{ category_recap.get_name() }}</h5>
+                <div class="{{ 'red-text' if category_recap.get_percentage() > 100 else 'green-text' }}">
+                    {{ "%.2f"|format(category_recap.get_price()) }} € sur {{ "%.2f"|format(category_recap.get_budget()) }} ({{ category_recap.get_percentage() }}%)
+                </div>
+                <div class="progress">
+                    <div class="determinate" style="width: {{ category_recap.get_percentage() }}%"></div>
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -19,13 +24,13 @@
     </form>
 
     <div class="row">
-        {% for category, value in recap.items() %}
+        {% for category_recap in category_recaps %}
             <div class="col s4">
-                <h5>{{ category }}</h5>
-                {% for purchase in value.purchases %}
+                <h5>{{ category_recap.name }}</h5>
+                {% for purchase in category_recap.purchases %}
                     <div>
-                        <div>{{ purchase.category }} {{ "$%.2f"|format(purchase.price) }} €</div>
-                        <a href="{{ url_for('remove', id=purchase.id) }}">Remove</a>
+                        <div>{{ purchase.date.strftime('%A %d %B') }} : {{ "%.2f"|format(purchase.price) }} € <a href="{{ url_for('remove', id=purchase.id) }}">Supprimer</a></div>
+
                     </div>
                 {% endfor %}
             </div>
