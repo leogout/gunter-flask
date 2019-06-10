@@ -1,6 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+    <div class="row">
+        {% for category, value in recap.items() %}
+            <div class="col s4">
+                <h5>{{ category }}</h5>
+                <div>{{ "$%.2f"|format(value.price) }} €</div>
+            </div>
+        {% endfor %}
+    </div>
+
     <form action="" method="post">
         {{ form.csrf_token }}
         {{ form.category.label }} {{ form.category }}
@@ -8,8 +18,18 @@
         <input type="submit" value="Go">
     </form>
 
-    {% for purchase in purchases %}
-        <div>{{ purchase.category }} {{ purchase.price }}</div>
-        <a href="{{ url_for('remove', id=purchase.id) }}">Remove</a>
-    {% endfor %}
+    <div class="row">
+        {% for category, value in recap.items() %}
+            <div class="col s4">
+                <h5>{{ category }}</h5>
+                {% for purchase in value.purchases %}
+                    <div>
+                        <div>{{ purchase.category }} {{ "$%.2f"|format(purchase.price) }} €</div>
+                        <a href="{{ url_for('remove', id=purchase.id) }}">Remove</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
 {% endblock content %}

@@ -25,13 +25,23 @@ def home():
             category_id=form.category.data,
             price=form.price.data
         )
-
         db.session.add(purchase)
         db.session.commit()
 
-    purchases = Purchase.query.filter(extract('month', Purchase.date) == datetime.now().month).all()
+        return redirect(url_for('home'))
 
-    return render_template('homepage.html', form=form, purchases=purchases)
+    purchases = Purchase.query \
+        .filter(extract('month', Purchase.date) == datetime.now().month) \
+        .order_by(Purchase.date.desc()) \
+        .all()
+
+    recap = {c.name: {'price': 0, 'purchases': []} for c in Category.query.all()}
+
+    for purchase in purchases:
+        recap[purchase.category.name]['price'] += purchase.price
+        recap[purchase.category.name]['purchases'].append(purchase)
+
+    return render_template('homepage.html', form=form, purchases=purchases, recap=recap)
 
 
 @app.route('/remove/<int:id>', methods=['GET', 'POST'])
