@@ -4,8 +4,12 @@ from forms import PurchaseForm
 from datetime import datetime
 from sqlalchemy import extract
 import locale
+import os
 
-locale.setlocale(locale.LC_TIME, "fr")
+if os.name == 'nt':
+    locale.setlocale(locale.LC_TIME, "fr")
+else:
+    locale.setlocale(locale.LC_TIME, "fr_FR")
 
 app = Flask(__name__)
 
