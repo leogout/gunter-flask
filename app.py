@@ -80,6 +80,25 @@ def budgets():
     return render_template('budgets.html', form=form)
 
 
+@app.route('/recap', methods=['GET', 'POST'])
+def recap():
+
+    one_month_ago = (datetime.now().month - 2) % 12 + 1
+
+    purchases_q = Purchase.query \
+        .filter(extract('month', Purchase.date) == one_month_ago) \
+        .group_by(extract('month', Purchase.date))
+
+    category_recaps = []
+
+    for category in Category.query.all():
+        purchases = purchases_q.filter(Purchase.category == category).all()
+        budget = Budget.query.filter(Budget.category == category).first()
+        category_recaps.append(CategoryRecap(category=category, purchases=purchases, budget=budget))
+
+    return render_template('recap.html', category_recaps=category_recaps)
+
+
 @app.cli.command()
 def initdb():
     db.create_all()
