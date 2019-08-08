@@ -87,7 +87,7 @@ def recap():
 
     purchases_q = Purchase.query \
         .filter(extract('month', Purchase.date) == one_month_ago) \
-        .group_by(extract('month', Purchase.date))
+        .order_by(Purchase.date.desc())
 
     category_recaps = []
 
