@@ -27,6 +27,7 @@ class Purchase(db.Model):
     price = db.Column(db.Float, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     category = db.relationship(Category)
+    label = db.Column(db.String, nullable=True)
 
     def __str__(self):
         return '{} {}€'.format(self.category, self.price)

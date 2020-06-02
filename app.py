@@ -14,7 +14,7 @@ else:
 app = Flask(__name__)
 
 
-app.secret_key = 'secret key'
+app.secret_key = 'qdf35d4fsgbh68drt4h3wqsfg5d21bvsdf20xd1ftrq5ee'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///./db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = 'False'
 
@@ -30,7 +30,8 @@ def home():
         purchase = Purchase(
             date=datetime.now(),
             category_id=form.category.data,
-            price=form.price.data
+            price=form.price.data,
+            label=form.label.data or ''
         )
         db.session.add(purchase)
         db.session.commit()
@@ -82,7 +83,6 @@ def budgets():
 
 @app.route('/recap', methods=['GET', 'POST'])
 def recap():
-
     one_month_ago = (datetime.now().month - 2) % 12 + 1
 
     purchases_q = Purchase.query \
@@ -103,22 +103,26 @@ def recap():
 def initdb():
     db.create_all()
 
-    cat_petrol = Category(name='Essence')
-    cat_hobby = Category(name='Loisirs')
     cat_groceries = Category(name='Courses')
+    cat_hobby = Category(name='Loisirs')
+    cat_petrol = Category(name='Essence')
+    cat_travaux = Category(name='Travaux')
 
-    db.session.add(cat_petrol)
-    db.session.add(cat_hobby)
     db.session.add(cat_groceries)
+    db.session.add(cat_hobby)
+    db.session.add(cat_petrol)
+    db.session.add(cat_travaux)
 
     db.session.commit()
 
-    bud_petrol = Budget(category=cat_petrol, limit=200)
-    bud_hobby = Budget(category=cat_hobby, limit=200)
     bud_groceries = Budget(category=cat_groceries, limit=200)
+    bud_hobby = Budget(category=cat_hobby, limit=200)
+    bud_petrol = Budget(category=cat_petrol, limit=200)
+    bud_travaux = Budget(category=cat_travaux, limit=200)
 
-    db.session.add(bud_petrol)
-    db.session.add(bud_hobby)
     db.session.add(bud_groceries)
+    db.session.add(bud_hobby)
+    db.session.add(bud_petrol)
+    db.session.add(bud_travaux)
 
     db.session.commit()

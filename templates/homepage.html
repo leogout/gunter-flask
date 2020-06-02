@@ -6,11 +6,15 @@
         <div class="row">
             <div class="input-field col s12 m6">
                 {{ form.category }}
-                <label for="first_name">{{ form.category.label }}</label>
+                <label>{{ form.category.label }}</label>
             </div>
             <div class="input-field col s12 m6">
                 {{ form.price }}
-                <label for="first_name">{{ form.price.label }}</label>
+                <label>{{ form.price.label }}</label>
+            </div>
+            <div class="input-field col s12 m6">
+                {{ form.label }}
+                <label>{{ form.label.label }}</label>
             </div>
 
             <div class="center-align">
@@ -37,7 +41,7 @@
 
                         {% for purchase in category_recap.purchases %}
                             <div>
-                                {{ purchase.date.strftime('%A %d %B') }} : {{ "%.2f"|format(purchase.price) }} €
+                                {{ purchase.date.strftime('%A %d %B') }} : {{ purchase.label }} {{ "%.2f"|format(purchase.price) }} €
                                 <a href="{{ url_for('remove', id=purchase.id) }}">Supprimer</a>
                             </div>
                         {% endfor %}
